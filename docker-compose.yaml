@@ -1,0 +1,30 @@
+version: '3.10'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      DEVAPP_DB__uri: "postgresql://postgres:postgres@db:5432/${DEVAPP_DB:-devapp}"
+      DEVAPP_DB__connect_args: "{}"
+    volumes:
+      - .:/home/app/api
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+  db:
+    build: postgres
+    image: dev_postgres
+    volumes:
+      - $HOME/.postgres/dev_db/postgresql:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+    environment:
+      - POSTGRES_DBS=devapp, devapp_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
